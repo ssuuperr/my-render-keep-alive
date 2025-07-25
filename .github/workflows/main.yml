@@ -1,0 +1,13 @@
+name: Keep Render Service Alive
+
+on:
+  schedule:
+    # 每 10 分钟运行一次
+    - cron: '*/5 * * * *'
+
+jobs:
+  curl:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Make a GET request to the Render service
+        run: curl -X GET "https://hajimi-mraq.onrender.com/"
