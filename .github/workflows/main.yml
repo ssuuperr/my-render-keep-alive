@@ -1,32 +1,14 @@
-name: Keep Render Service Alive
+name: Keep Render Service Alive (Triggered)
 
+# 当听到“keep-alive”这个口令时，就启动！
 on:
-  schedule:
-    - cron: '*/5 * * * *'
-  workflow_dispatch: {}
-
-# ↓↓↓ 我们要增加的就是这个部分 ↓↓↓
-permissions:
-  contents: write # 赋予对仓库内容的写权限
+  repository_dispatch:
+    types: [keep-alive]
 
 jobs:
-  curl_and_commit:
+  curl:
     runs-on: ubuntu-latest
     steps:
-      # 第1步：访问你的 Render 服务
+      # 只做一件事：访问网站！
       - name: Make a GET request to the Render service
         run: curl -X GET "${{ secrets.RENDER_URL }}"
-
-      # 第2步：检出代码
-      - name: Checkout repository
-        uses: actions/checkout@v3
-
-      # 第3步：制造“活动”并提交
-      - name: Create a new commit
-        run: |
-          git config --global user.name 'github-actions[bot]'
-          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
-          echo "Last run on $(date)" > last_run.log
-          git add .
-          git commit -m "CHORE: Automated commit to keep repository active" || echo "No changes to commit"
-          git push
