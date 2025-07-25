@@ -1,15 +1,32 @@
 name: Keep Render Service Alive
 
 on:
-  # 在这里增加手动触发功能
-  workflow_dispatch: {}
   schedule:
     # 每 5 分钟运行一次
     - cron: '*/5 * * * *'
+  # 保留手动触发，方便测试
+  workflow_dispatch: {}
 
 jobs:
-  curl:
+  curl_and_commit:
     runs-on: ubuntu-latest
     steps:
+      # 第1步：访问你的 Render 服务
       - name: Make a GET request to the Render service
-        run: curl -X GET "https://hajimi-mraq.onrender.com/"
+        run: curl -X GET "${{ secrets.RENDER_URL }}"
+
+      # 第2步：检出代码，以便我们能提交更改
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # 第3步：制造一点“活动”，并提交
+      - name: Create a new commit
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          # 创建或更新一个文件来确保有东西可提交
+          echo "Last run on $(date)" > last_run.log
+          git add .
+          # 只有当有实际更改时才提交，避免空提交
+          git commit -m "CHORE: Automated commit to keep repository active" || echo "No changes to commit"
+          git push
