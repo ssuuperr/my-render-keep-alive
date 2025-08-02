@@ -1,4 +1,4 @@
-name: Keep Render Service Alive (Triggered)
+name: Keep Render Service Alive
 
 # 当听到“keep-alive”这个口令时，就启动！
 on:
