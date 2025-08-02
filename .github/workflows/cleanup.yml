@@ -3,7 +3,7 @@ name: "Cleanup Old Workflow Runs"
 
 on:
   schedule:
-    # 每天自动运行一次，清理旧记录
+    # 每天自动运行一次
     - cron: '0 4 * * *'
   # 允许你从 Actions 页面手动触发
   workflow_dispatch:
@@ -12,25 +12,22 @@ jobs:
   delete-runs:
     runs-on: ubuntu-latest
     permissions:
-      # 必须提供写入权限，才能删除 workflow runs
+      # 确保有删除权限
       actions: write
 
     steps:
-      - name: Delete workflow runs
+      - name: Delete old workflow runs
         uses: Mattraks/delete-workflow-runs@v2
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           
-          # 指定要清理的 workflow 的名字
-          workflow_name: "Keep Render Service Alive (Triggered)"
+          # --- 这是关键的修改 ---
+          # 我们不再使用 workflow_name，而是直接指定文件名，这样更精确无误。
+          workflow: main.yml
 
-          # 关键：保留最近的运行记录
-          # 你的任务每5分钟一次，半小时就是6次。我们保留6次。
+          # 保留策略不变：保留最新的6次运行
           keep_minimum_runs: 6
-
-          # 将按天保留的策略设置为0，让 keep_minimum_runs 生效
           retain_days: 0
-
-          # 只清理已结束的任务
+          
           delete_run_by_conclusion_pattern: "completed,failure,cancelled"
