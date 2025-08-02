@@ -3,16 +3,13 @@ name: "Cleanup Old Workflow Runs"
 
 on:
   schedule:
-    # 每天自动运行一次
     - cron: '0 4 * * *'
-  # 允许你从 Actions 页面手动触发
   workflow_dispatch:
 
 jobs:
   delete-runs:
     runs-on: ubuntu-latest
     permissions:
-      # 确保有删除权限
       actions: write
 
     steps:
@@ -22,12 +19,9 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           repository: ${{ github.repository }}
           
-          # --- 这是关键的修改 ---
-          # 我们不再使用 workflow_name，而是直接指定文件名，这样更精确无误。
-          workflow: main.yml
+          # --- 使用正确的参数和全新的、简单的名字 ---
+          workflow_name: Keep-Render-Alive
 
-          # 保留策略不变：保留最新的6次运行
+          # 保留策略不变
           keep_minimum_runs: 6
           retain_days: 0
-          
-          delete_run_by_conclusion_pattern: "completed,failure,cancelled"
